@@ -4,13 +4,15 @@
     <meta charset="UTF-8">
     <title>Document</title>
     <link rel="stylesheet" href="style.css">
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
 
 <div id="root"></div>
 
-<script>
-    //==================================
+<script type="text/jsx">
 
     const api = {
         get(url) {
@@ -55,93 +57,79 @@
     }
 
     function Header() {
-        return Vdom.createElement('header', {className: 'header'},Vdom.createElement(Logo));
+        return (
+            <header className="header">
+                <Logo />
+            </header>
+        );
     }
 
-    //==================================
+
 
     let state = {
         time: new Date(),
         lots: null,
     }
 
-    const Vdom = {
-        createElement: (type, config, ...children) => {
-            const key = config ? (config.key || null) : null;
-            const props = config || {};
-
-            if (children.length === 1) {
-                props.children = children[0];
-            } else {
-                props.children = children;
-            }
-
-            return {
-                type,
-                key,
-                props
-            }
-        }
-    }
-
     function App({state}) {
-
-        return Vdom.createElement('div', {className:'app'},
-        Vdom.createElement(Header),
-        Vdom.createElement(Clock,{time: state.time}),
-        Vdom.createElement(Lots,{lots: state.lots})
+        return (
+            <div className="app">
+                <Header />
+                <Clock time={state.time} />
+                <Lots lots={state.lots} />
+            </div>
         )
     }
 
-    function Block(props) {
-        return Vdom.createElement('div',{className:'block'}, props.content)
-    }
-
     function Logo() {
-       return  Vdom.createElement('img', {className: 'logo', src: 'logo.png'})
+       return <img className="logo" src="logo.png" alt="logo"/>
     }
 
     //Tell, Don't Ask
     function Clock({time}) {
-
         const isDay = time.getHours() >= 7 && time.getHours() <= 21;
-
-        return Vdom.createElement('div', {className: 'clock'},
-        Vdom.createElement('span', {className: 'value'}, time.toLocaleTimeString()),
-        Vdom.createElement('span', {className: isDay ? 'icon day' : 'icon night'})
+        return (
+            <div className="clock">
+                <span className="value">{time.toLocaleTimeString()}</span>
+                <span className={isDay ? 'icon day' : 'icon night'}/>
+            </div>
         )
     }
 
     function Loading() {
-        return Vdom.createElement('div',{className: 'loading'}, 'Loading...')
+        return <div className="loading">Loading...</div>;
     }
 
 
     function Lots({lots}) {
 
         if (lots === null) {
-            return Vdom.createElement(Loading);
+            return <Loading />;
         }
 
-        return Vdom.createElement('div', {className: 'lots'}, lots.map(lot => Vdom.createElement(Lot,{lot, key:lot.id})));
-    }
-
-    function Lot({lot, key}) {
-        return Vdom.createElement('article', { className: 'lot' , key: key},
-        Vdom.createElement('div', {className: 'price'}, lot.price),
-        Vdom.createElement('h1', {}, lot.name),
-        Vdom.createElement('p', {}, lot.description),
+        return (
+            <div className="lots">
+                {lots.map(lot => <Lot lot={lot} key={lot.id}/>)}
+            </div>
         )
     }
 
+    function Lot({lot}) {
+        return (
+                <article className="lot">
+                    <div className="price">{lot.price}</div>
+                    <h1>{lot.name}</h1>
+                    <p>{lot.description}</p>
+                </article>
+            );
+    }
+
     function renderView(state) {
-        render(
-            Vdom.createElement(App,{state}),
+        ReactDOM.render(
+            <App state={state}/>,
             document.getElementById('root'),
         );
     }
-
-    //######################################
 
     setInterval(() => {
 
@@ -182,8 +170,6 @@
 
         renderView(state);
     });
-
-    //######################################
 
     function render(virtualDom, realDomRoot) {
         const evaluatedVirtualDom = evaluate(virtualDom);
@@ -288,7 +274,6 @@
         }
         return document.createElement(virtual.type);
     }
-
 
 </script>
 
